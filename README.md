@@ -60,8 +60,9 @@ runs, so one bad line doesn't hide problems further down.
 
 ## Status
 
-Early skeleton. Conversion and error reporting work end to end; there's no test suite
-or explicit direction flags yet.
+Early skeleton. Conversion and error reporting work end to end, with unit tests
+covering the round trip for every value in range and the error columns for the
+non-canonical cases; there are no explicit direction flags yet.
 
 ## License
 

@@ -45,6 +45,18 @@ Read from a file instead of stdin:
 ./romanforge input.txt
 ```
 
+By default each line is inspected to guess its direction: a plain integer becomes a
+numeral, anything else is parsed as a numeral. Pin the direction instead with
+`-to-roman` or `-to-arabic` (useful for input that's supposed to be all one type, so a
+typo doesn't silently get reinterpreted as the other):
+
+```
+$ echo "1994" | ./romanforge -to-arabic
+line 1, column 1: unexpected character '1' (valid roman numeral digits are I, V, X, L, C, D, M)
+    1994
+    ^
+```
+
 Lines starting with `#` are treated as comments and skipped; blank lines are skipped
 too. A line that fails to convert is reported to stderr and the rest of the file still
 runs, so one bad line doesn't hide problems further down.
@@ -62,7 +74,9 @@ runs, so one bad line doesn't hide problems further down.
 
 Early skeleton. Conversion and error reporting work end to end, with unit tests
 covering the round trip for every value in range and the error columns for the
-non-canonical cases; there are no explicit direction flags yet.
+non-canonical cases. Direction can be pinned with `-to-roman`/`-to-arabic`; there's no
+`-strict` flag yet, and the conversion logic still lives in `main` rather than a
+reusable package.
 
 ## License
 

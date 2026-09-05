@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"flag"
 	"fmt"
 	"os"
 	"strconv"
@@ -9,18 +10,34 @@ import (
 )
 
 func main() {
+	toRoman := flag.Bool("to-roman", false, "treat every line as an integer and convert it to a roman numeral")
+	toArabic := flag.Bool("to-arabic", false, "treat every line as a roman numeral and convert it to an integer")
+	flag.Parse()
+
+	if *toRoman && *toArabic {
+		fmt.Fprintln(os.Stderr, "romanforge: -to-roman and -to-arabic are mutually exclusive")
+		os.Exit(1)
+	}
+	convert := convertLine
+	switch {
+	case *toRoman:
+		convert = convertToRoman
+	case *toArabic:
+		convert = convertToArabic
+	}
+
 	var scanner *bufio.Scanner
 	source := "stdin"
 
-	if len(os.Args) > 1 {
-		f, err := os.Open(os.Args[1])
+	if args := flag.Args(); len(args) > 0 {
+		f, err := os.Open(args[0])
 		if err != nil {
 			fmt.Fprintln(os.Stderr, "romanforge:", err)
 			os.Exit(1)
 		}
 		defer f.Close()
 		scanner = bufio.NewScanner(f)
-		source = os.Args[1]
+		source = args[0]
 	} else {
 		scanner = bufio.NewScanner(os.Stdin)
 	}
@@ -35,7 +52,7 @@ func main() {
 			continue
 		}
 
-		out, err := convertLine(line)
+		out, err := convert(line)
 		if err != nil {
 			failed = true
 			if pe, ok := err.(*ParseError); ok {
@@ -65,9 +82,25 @@ func main() {
 // roman numeral, anything else is parsed as a roman numeral and turned back into a
 // number.
 func convertLine(line string) (string, error) {
-	if n, err := strconv.Atoi(line); err == nil {
-		return ToRoman(n)
+	if _, err := strconv.Atoi(line); err == nil {
+		return convertToRoman(line)
 	}
+	return convertToArabic(line)
+}
+
+// convertToRoman parses line as a plain integer and converts it to a roman numeral.
+// Used when -to-roman pins the direction instead of letting convertLine guess it.
+func convertToRoman(line string) (string, error) {
+	n, err := strconv.Atoi(line)
+	if err != nil {
+		return "", &ParseError{Column: 1, Input: line, Reason: fmt.Sprintf("%q is not a valid integer", line)}
+	}
+	return ToRoman(n)
+}
+
+// convertToArabic parses line as a roman numeral and converts it to an integer.
+// Used when -to-arabic pins the direction instead of letting convertLine guess it.
+func convertToArabic(line string) (string, error) {
 	n, err := FromRoman(strings.ToUpper(line))
 	if err != nil {
 		return "", err

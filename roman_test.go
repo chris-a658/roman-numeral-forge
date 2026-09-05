@@ -196,6 +196,34 @@ func TestConvertLineErrors(t *testing.T) {
 	}
 }
 
+func TestConvertToRoman(t *testing.T) {
+	got, err := convertToRoman("1994")
+	if err != nil {
+		t.Fatalf("convertToRoman(\"1994\") returned error: %v", err)
+	}
+	if got != "MCMXCIV" {
+		t.Errorf("convertToRoman(\"1994\") = %q, want %q", got, "MCMXCIV")
+	}
+
+	if _, err := convertToRoman("MCMXCIV"); err == nil {
+		t.Error("convertToRoman(\"MCMXCIV\") should have errored: it is not an integer")
+	}
+}
+
+func TestConvertToArabic(t *testing.T) {
+	got, err := convertToArabic("mcmxciv")
+	if err != nil {
+		t.Fatalf("convertToArabic(\"mcmxciv\") returned error: %v", err)
+	}
+	if got != "1994" {
+		t.Errorf("convertToArabic(\"mcmxciv\") = %q, want %q", got, "1994")
+	}
+
+	if _, err := convertToArabic("1994"); err == nil {
+		t.Error("convertToArabic(\"1994\") should have errored: it is not a roman numeral")
+	}
+}
+
 func TestParseErrorReport(t *testing.T) {
 	pe := &ParseError{Line: 4, Column: 2, Input: "IIII", Reason: `"IIII" is not a valid roman numeral (did you mean "IV"?)`}
 	report := pe.Report()

@@ -59,7 +59,16 @@ line 1, column 1: unexpected character '1' (valid roman numeral digits are I, V,
 
 Lines starting with `#` are treated as comments and skipped; blank lines are skipped
 too. A line that fails to convert is reported to stderr and the rest of the file still
-runs, so one bad line doesn't hide problems further down.
+runs, so one bad line doesn't hide problems further down. Pass `-strict` to stop at the
+first error instead:
+
+```
+$ printf "1994\nIIII\n2026\n" | ./romanforge -strict
+MCMXCIV
+line 2, column 2: "IIII" is not a valid roman numeral (did you mean "IV"?)
+    IIII
+     ^
+```
 
 ## Rules
 
@@ -74,9 +83,9 @@ runs, so one bad line doesn't hide problems further down.
 
 Early skeleton. Conversion and error reporting work end to end, with unit tests
 covering the round trip for every value in range and the error columns for the
-non-canonical cases. Direction can be pinned with `-to-roman`/`-to-arabic`; there's no
-`-strict` flag yet, and the conversion logic still lives in `main` rather than a
-reusable package.
+non-canonical cases. Direction can be pinned with `-to-roman`/`-to-arabic`, and
+`-strict` stops at the first bad line; the conversion logic still lives in `main`
+rather than a reusable package.
 
 ## License
 

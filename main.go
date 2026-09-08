@@ -12,6 +12,7 @@ import (
 func main() {
 	toRoman := flag.Bool("to-roman", false, "treat every line as an integer and convert it to a roman numeral")
 	toArabic := flag.Bool("to-arabic", false, "treat every line as a roman numeral and convert it to an integer")
+	strict := flag.Bool("strict", false, "exit immediately on the first conversion error instead of reporting it and continuing")
 	flag.Parse()
 
 	if *toRoman && *toArabic {
@@ -63,6 +64,9 @@ func main() {
 				fmt.Fprint(os.Stderr, pe.Report())
 			} else {
 				fmt.Fprintf(os.Stderr, "%s:%d: %v\n", source, lineNum, err)
+			}
+			if *strict {
+				os.Exit(1)
 			}
 			continue
 		}

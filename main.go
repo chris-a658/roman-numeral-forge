@@ -7,6 +7,8 @@ import (
 	"os"
 	"strconv"
 	"strings"
+
+	"romanforge/internal/roman"
 )
 
 func main() {
@@ -56,7 +58,7 @@ func main() {
 		out, err := convert(line)
 		if err != nil {
 			failed = true
-			if pe, ok := err.(*ParseError); ok {
+			if pe, ok := err.(*roman.ParseError); ok {
 				pe.Line = lineNum
 				if pe.Input == "" {
 					pe.Input = raw
@@ -97,15 +99,15 @@ func convertLine(line string) (string, error) {
 func convertToRoman(line string) (string, error) {
 	n, err := strconv.Atoi(line)
 	if err != nil {
-		return "", &ParseError{Column: 1, Input: line, Reason: fmt.Sprintf("%q is not a valid integer", line)}
+		return "", &roman.ParseError{Column: 1, Input: line, Reason: fmt.Sprintf("%q is not a valid integer", line)}
 	}
-	return ToRoman(n)
+	return roman.ToRoman(n)
 }
 
 // convertToArabic parses line as a roman numeral and converts it to an integer.
 // Used when -to-arabic pins the direction instead of letting convertLine guess it.
 func convertToArabic(line string) (string, error) {
-	n, err := FromRoman(strings.ToUpper(line))
+	n, err := roman.FromRoman(strings.ToUpper(line))
 	if err != nil {
 		return "", err
 	}

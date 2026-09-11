@@ -84,8 +84,9 @@ line 2, column 2: "IIII" is not a valid roman numeral (did you mean "IV"?)
 Early skeleton. Conversion and error reporting work end to end, with unit tests
 covering the round trip for every value in range and the error columns for the
 non-canonical cases. Direction can be pinned with `-to-roman`/`-to-arabic`, and
-`-strict` stops at the first bad line; the conversion logic still lives in `main`
-rather than a reusable package.
+`-strict` stops at the first bad line. Conversion now lives in `internal/roman` so
+it isn't tangled up with the CLI's line-scanning and flag handling. Still missing: a
+batch summary at the end of a run (lines processed, lines failed).
 
 ## License
 

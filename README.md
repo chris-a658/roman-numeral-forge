@@ -70,6 +70,20 @@ line 2, column 2: "IIII" is not a valid roman numeral (did you mean "IV"?)
      ^
 ```
 
+Once the run finishes (or `-strict` cuts it short), a summary line goes to stderr with
+the counts, so a script driving romanforge over a big file doesn't have to count error
+lines itself:
+
+```
+$ printf "1994\nIIII\n2026\n" | ./romanforge
+MCMXCIV
+line 2, column 2: "IIII" is not a valid roman numeral (did you mean "IV"?)
+    IIII
+     ^
+MMXXVI
+romanforge: 2 converted, 1 failed
+```
+
 ## Rules
 
 - Arabic input must be a plain integer from 1 to 3999 (roman numerals have no zero and
@@ -85,8 +99,8 @@ Early skeleton. Conversion and error reporting work end to end, with unit tests
 covering the round trip for every value in range and the error columns for the
 non-canonical cases. Direction can be pinned with `-to-roman`/`-to-arabic`, and
 `-strict` stops at the first bad line. Conversion now lives in `internal/roman` so
-it isn't tangled up with the CLI's line-scanning and flag handling. Still missing: a
-batch summary at the end of a run (lines processed, lines failed).
+it isn't tangled up with the CLI's line-scanning and flag handling. Every run ends
+with a summary line on stderr (lines converted, lines failed).
 
 ## License
 

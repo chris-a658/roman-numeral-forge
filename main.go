@@ -45,8 +45,9 @@ func main() {
 		scanner = bufio.NewScanner(os.Stdin)
 	}
 
-	failed := false
 	lineNum := 0
+	converted := 0
+	failedCount := 0
 	for scanner.Scan() {
 		lineNum++
 		raw := scanner.Text()
@@ -57,7 +58,7 @@ func main() {
 
 		out, err := convert(line)
 		if err != nil {
-			failed = true
+			failedCount++
 			if pe, ok := err.(*roman.ParseError); ok {
 				pe.Line = lineNum
 				if pe.Input == "" {
@@ -72,6 +73,7 @@ func main() {
 			}
 			continue
 		}
+		converted++
 		fmt.Println(out)
 	}
 
@@ -79,7 +81,11 @@ func main() {
 		fmt.Fprintln(os.Stderr, "romanforge:", err)
 		os.Exit(1)
 	}
-	if failed {
+
+	if converted+failedCount > 0 {
+		fmt.Fprintf(os.Stderr, "romanforge: %d converted, %d failed\n", converted, failedCount)
+	}
+	if failedCount > 0 {
 		os.Exit(1)
 	}
 }

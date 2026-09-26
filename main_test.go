@@ -2,6 +2,8 @@ package main
 
 import (
 	"bytes"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -78,6 +80,33 @@ func TestRunToRomanFlagPinsDirection(t *testing.T) {
 	}
 	if got, want := stdout.String(), "IX\n"; got != want {
 		t.Errorf("run() stdout = %q, want %q", got, want)
+	}
+}
+
+func TestRunReadsFromFileArgument(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "input.txt")
+	if err := os.WriteFile(path, []byte("1994\nXL\n"), 0o644); err != nil {
+		t.Fatalf("failed to write test input file: %v", err)
+	}
+
+	var stdout, stderr bytes.Buffer
+	code := run([]string{path}, strings.NewReader(""), &stdout, &stderr)
+	if code != 0 {
+		t.Fatalf("run() exit code = %d, want 0 (stderr: %s)", code, stderr.String())
+	}
+	if want := "MCMXCIV\n40\n"; stdout.String() != want {
+		t.Errorf("run() stdout = %q, want %q", stdout.String(), want)
+	}
+}
+
+func TestRunMissingFileArgumentReturnsError(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{filepath.Join(t.TempDir(), "does-not-exist.txt")}, strings.NewReader(""), &stdout, &stderr)
+	if code != 1 {
+		t.Errorf("run() exit code = %d, want 1", code)
+	}
+	if stdout.String() != "" {
+		t.Errorf("run() stdout = %q, want empty", stdout.String())
 	}
 }
 
